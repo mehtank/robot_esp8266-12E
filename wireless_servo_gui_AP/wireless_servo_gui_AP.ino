@@ -41,17 +41,16 @@
 
 #include <Arduino.h>
 
-#include <ESP8266WiFi.h>
-
-#include <WebSocketsServer.h>
-#include <ESP8266WebServer.h>
-
-#include <ESP8266mDNS.h>
-#include <FS.h>
-
 #include <Servo.h>
 
+#include "debug.h"
+#include "file.h"
+#include "server.h"
+
+
 const int LED_PIN = D0;
+#define LED_ON digitalWrite(LED_PIN, LOW)
+#define LED_OFF digitalWrite(LED_PIN, HIGH)
 
 const int SERVO_LEFT = D1;
 const int SERVO_RIGHT = D2;
@@ -65,31 +64,30 @@ const char* ap_password = "my_password";
 
 // WiFi STA parameters
 const char* sta_ssid = 
-  "DG1670AF2"; //gitignore  "...";
+  "...";
 const char* sta_password = 
-  "DG1670AF2"; //gitignore  "...";
-
-ESP8266WebServer server = ESP8266WebServer(80);
-WebSocketsServer webSocket = WebSocketsServer(81);
-
-String html_home;
-String css_style;
+  "...";
 
 void setup() {
-    WiFi.softAP(ap_ssid, ap_password);
-
-    Serial.begin(115200);
-
-    setupServer();
-
+    setupDebug();
     setupPins();
+
+    setupSTA(sta_ssid, sta_password);
+    setupAP(ap_ssid, ap_password);
+
+    setupFile();
+    registerPage("/", "text/html", readFile("/controls.html")
+    registerPage("/style.css", "text/css", readFile("/style.css")
+
+    setupHTML();
+    setupWS(webSocketEvent);
+    setupMDNS();
 }
 
 void loop() {
-    webSocket.loop();
-    server.handleClient();
+    wsLoop();
+    httpLoop();
 }
-
 
 
 //
@@ -98,85 +96,37 @@ void loop() {
 
 int stop() {
   //digitalWrite(LED_PIN, HIGH);
-  Serial.println("stop");
+  debug("stop");
   servo_left.write(90);
   servo_right.write(90);
 }
 
 int forward() {
   //digitalWrite(LED_PIN, LOW);
-  Serial.println("forward");
+  debug("forward");
   servo_left.write(0);
   servo_right.write(180);
 }
 
 int backward() {
-  Serial.println("backward");
+  debug("backward");
   servo_left.write(180);
   servo_right.write(0);
 }
 
 int left() {
-  Serial.println("left");
+  debug("left");
   servo_left.write(180);
   servo_right.write(180);
 }
 
 int right() {
-  Serial.println("right");
+  debug("right");
   servo_left.write(0);
   servo_right.write(0);
 }
 
 
-
-//
-// Setup Methods //
-//
-void prepareFile() {
-  
-    Serial.println("Prepare file system");
-    SPIFFS.begin();
-  
-    File file = SPIFFS.open("/controls.html", "r");
-    if (!file) {
-        Serial.println("HTML file open failed");  
-    } 
-    else {
-        Serial.println("HTML file open success");
-
-        html_home = "";
-        while (file.available()) {
-            //Serial.write(file.read());
-            String line = file.readStringUntil('\n');
-            html_home += line + "\n";
-        }
-        file.close();
-
-        //Serial.print(html_home);
-    }
-
-    File css_file = SPIFFS.open("/style.css", "r");
-    if (!css_file) {
-        Serial.println("CSS file open failed");  
-    } 
-    else {
-        Serial.println("CSS file open success");
-
-        css_style = "";
-        while (css_file.available()) {
-            //Serial.write(file.read());
-            String line = css_file.readStringUntil('\n');
-            css_style += line + "\n";
-        }
-        css_file.close();
-
-        //Serial.print(html_home);
-    }
-
-
-
-}
 
 //
 // Setup //
@@ -184,57 +134,13 @@ void prepareFile() {
 
 void setupPins() {
     // setup LEDs and Motors
-    Serial.println("Setup LED and motor pins");
+    debug("Setup LED and motor pins");
     pinMode(LED_PIN, OUTPUT);    //Pin D0 is LED
-    digitalWrite(LED_PIN, HIGH); //Initial state is HIGH (OFF)
+    LED_ON;                      //Turn on LED
 
     servo_left.attach(SERVO_LEFT);
     servo_right.attach(SERVO_RIGHT);
 }
-
-void setupServer() {
-    for(uint8_t t = 4; t > 0; t--) {
-        Serial.printf("[SETUP] BOOT WAIT %d...\n", t);
-        Serial.flush();
-        delay(1000);
-    }
-
-    // read the html code to html_homes
-    prepareFile();
-
-
-    IPAddress myIP = WiFi.softAPIP();
-    Serial.print("AP IP address: ");
-    Serial.println(myIP);
-
-    // start webSocket server
-    webSocket.begin();
-    webSocket.onEvent(webSocketEvent);
-
-    if(MDNS.begin("esp8266")) {
-        Serial.println("MDNS responder started");
-    }
-
-    // handle index
-    server.on("/", []() {
-        // send home.html
-        server.send(200, "text/html", html_home);
-    });
-
-    server.on("/style.css", []() {
-        // send home.html
-        server.send(200, "text/css", css_style);
-    });
-
-    server.begin();
-
-    // Add service to MDNS
-    MDNS.addService("http", "tcp", 80);
-    MDNS.addService("ws", "tcp", 81);
-
-    Serial.printf("Server Start\n");
-}
-
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
 
