@@ -46,7 +46,7 @@ void setupAP(char* ssid, char* password) {
     debug(myIP.toString());
 }
 
-void registerPage(const char* url, const char* type, String content) {
+void registerPage(const char* url, const char* type, String &content) {
     httpServer.on(url,  [&type, &content]() { httpServer.send(200, type, content); }); 
 }
 

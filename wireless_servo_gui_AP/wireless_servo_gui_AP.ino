@@ -78,6 +78,9 @@ char* sta_password =
 
 char* mDNS_name = "paperbot";
 
+String html;
+String css;
+
 void setup() {
     setupDebug();
     setupPins();
@@ -88,8 +91,10 @@ void setup() {
     LED_OFF;
 
     setupFile();
-    registerPage("/", "text/html", loadFile("/controls.html"));
-    registerPage("/style.css", "text/css", loadFile("/style.css"));
+    html = loadFile("/controls.html");
+    css = loadFile("/style.css");
+    registerPage("/", "text/html", html);
+    registerPage("/style.css", "text/css", css);
 
     setupHTTP();
     setupWS(webSocketEvent);
