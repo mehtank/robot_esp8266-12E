@@ -59,9 +59,15 @@ Servo servo_left;
 Servo servo_right;
 
 
-// WiFi parameters
-const char* ssid = "ESP Whee2";
-const char* password = "my_password";
+// WiFi AP parameters
+const char* ap_ssid = "ESP Whee2";
+const char* ap_password = "my_password";
+
+// WiFi STA parameters
+const char* sta_ssid = 
+  "DG1670AF2"; //gitignore  "...";
+const char* sta_password = 
+  "DG1670AF2"; //gitignore  "...";
 
 ESP8266WebServer server = ESP8266WebServer(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
@@ -70,7 +76,7 @@ String html_home;
 String css_style;
 
 void setup() {
-    WiFi.softAP(ssid, password);
+    WiFi.softAP(ap_ssid, ap_password);
 
     Serial.begin(115200);
 
