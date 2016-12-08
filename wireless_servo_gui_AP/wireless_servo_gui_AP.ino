@@ -82,8 +82,10 @@ void setup() {
     setupDebug();
     setupPins();
 
+    LED_ON;
     setupSTA(sta_ssid, sta_password);
     setupAP(ap_ssid, ap_password);
+    LED_OFF;
 
     setupFile();
     registerPage("/", "text/html", loadFile("/controls.html"));
@@ -146,7 +148,7 @@ void setupPins() {
     // setup LEDs and Motors
     debug("Setup LED and motor pins");
     pinMode(LED_PIN, OUTPUT);    //Pin D0 is LED
-    LED_ON;                      //Turn on LED
+    LED_OFF;                     //Turn off LED
 
     servo_left.attach(SERVO_LEFT);
     servo_right.attach(SERVO_RIGHT);
