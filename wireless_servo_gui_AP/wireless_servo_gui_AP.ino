@@ -41,6 +41,14 @@
 
 #include <Arduino.h>
 
+#include <Hash.h>
+#include <FS.h>
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+#include <WebSocketsServer.h>
+#include <ESP8266mDNS.h>
+
 #include <Servo.h>
 
 #include "debug.h"
@@ -59,14 +67,16 @@ Servo servo_right;
 
 
 // WiFi AP parameters
-const char* ap_ssid = "ESP Whee2";
-const char* ap_password = "my_password";
+char* ap_ssid = "ESP Whee2";
+char* ap_password = "my_password";
 
 // WiFi STA parameters
-const char* sta_ssid = 
+char* sta_ssid = 
   "...";
-const char* sta_password = 
+char* sta_password = 
   "...";
+
+char* mDNS_name = "paperbot";
 
 void setup() {
     setupDebug();
@@ -76,12 +86,12 @@ void setup() {
     setupAP(ap_ssid, ap_password);
 
     setupFile();
-    registerPage("/", "text/html", readFile("/controls.html")
-    registerPage("/style.css", "text/css", readFile("/style.css")
+    registerPage("/", "text/html", loadFile("/controls.html"));
+    registerPage("/style.css", "text/css", loadFile("/style.css"));
 
-    setupHTML();
+    setupHTTP();
     setupWS(webSocketEvent);
-    setupMDNS();
+    setupMDNS(mDNS_name);
 }
 
 void loop() {
@@ -150,11 +160,12 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
             break;
         case WStype_CONNECTED: 
         {
-            IPAddress ip = webSocket.remoteIP(num);
-            Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+            // IPAddress ip = webSocket.remoteIP(num);
+            // Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+            debug("Web socket connected");
 
             // send message to client
-            webSocket.sendTXT(num, "Connected");
+            // webSocket.sendTXT(num, "Connected");
             break;
         }
         case WStype_TEXT:

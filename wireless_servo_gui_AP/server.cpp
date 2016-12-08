@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "server.h"
 #include "debug.h"
 
 #include <ESP8266WiFi.h>
@@ -34,7 +35,7 @@ void setupSTA(char* ssid, char* password) {
 
     IPAddress myIP = WiFi.localIP();
     debug("STA IP address: ");
-    debug(myIP);
+    debug(myIP.toString());
 }
 
 void setupAP(char* ssid, char* password) {
@@ -42,11 +43,11 @@ void setupAP(char* ssid, char* password) {
 
     IPAddress myIP = WiFi.softAPIP();
     debug("AP IP address: ");
-    debug(myIP);
+    debug(myIP.toString());
 }
 
-inline void registerPage(const char* url, const char* type, String content) {
-    server.on(url,  []() { server.send(200, type, content); }); 
+void registerPage(const char* url, const char* type, String content) {
+    httpServer.on(url,  [&type, &content]() { httpServer.send(200, type, content); }); 
 }
 
 void setupHTTP() {
@@ -55,8 +56,8 @@ void setupHTTP() {
 
 void setupWS(ws_callback_t callback) {
     // start webSocket server
-    webSocket.begin();
-    webSocket.onEvent(callback);
+    wsServer.begin();
+    wsServer.onEvent(callback);
 }
 
 void setupMDNS(char* name) {

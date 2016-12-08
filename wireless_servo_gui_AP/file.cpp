@@ -29,5 +29,4 @@ String loadFile(const char* filename) {
         file.close();
         return text;
     }
-    return void;
 }

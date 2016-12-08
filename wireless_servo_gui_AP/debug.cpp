@@ -7,6 +7,12 @@ void setupDebug() {
     isDebugSetup = true;
 }
 
+void debug(String s) {
+    if (!isDebugSetup)
+        setupDebug();
+    Serial.println(s);
+}
+
 void debug(const char* s) {
     if (!isDebugSetup)
         setupDebug();
