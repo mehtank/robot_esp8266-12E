@@ -2,7 +2,8 @@ body {
   width: 200px;
   text-align: center;
 }
-.button {
+
+button {
   background-color:#ffaa42;
   -moz-border-radius:13px;
   -webkit-border-radius:13px;
@@ -21,18 +22,22 @@ body {
      -khtml-user-select: none; /* Konqueror */
        -moz-user-select: none; /* Firefox */
         -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
+            user-select: none; /* Non-prefixed version, currently */
 }
 
-.button:hover {
+.smbutton {
+  padding: 10px 10px;
+}
+
+button:hover {
   background-color:#ff8c00;
 }
 
-.button:active {
+button:active {
   position:relative;
   top:1px;
 }
 
-.button:focus {
+button:focus {
   outline:0;
 }

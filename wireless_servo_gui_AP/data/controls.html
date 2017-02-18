@@ -5,7 +5,7 @@
   <title>whooo control robots</title>
 
   <link rel="stylesheet" type="text/css" href="style.css">
-  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;">
 </head>
 
 <body>
@@ -13,69 +13,64 @@
 
 <table style="width:100%">
   <tr>
-    <td></td>
-    <td><button id="forward" class="button">▲</button></td>
-    <td></td>
+    <td><button id="leftup"    name="bt" value="UL" class="smbutton">⏫</button></td>
+    <td><button id="forward"   name="bt" value="FD" class="button">▲</button></td>
+    <td><button id="rightup"   name="bt" value="UR" class="smbutton">⏫</button></td>
   </tr>
   <tr>
-    <td><button id="left" class="button">◀</button></td>
-    <td><button id="center" class="button">❤</button></td>
-    <td><button id="right" class="button">▶</button></td>
+    <td><button id="left"      name="bt" value="LT" class="button">◀</button></td>
+    <td><button id="center"    name="bt" value="CC" class="smbutton">❤</button></td>
+    <td><button id="right"     name="bt" value="RT" class="button">▶</button></td>
   </tr>
   <tr>
-    <td></td>
-    <td><button id="backward" class="button">▼</button></td>
+    <td><button id="leftdown"  name="bt" value="DL" class="smbutton">⏬</button></td>
+    <td><button id="backward"  name="bt" value="BK" class="button">▼</button></td>
+    <td><button id="rightdown" name="bt" value="DR" class="smbutton">⏬</button></td>
     <td></td>
   </tr>
 </table>
 
 
   <script>
-    document.getElementById("forward").ontouchstart = function() {forwardDown()};
-    document.getElementById("forward").ontouchend = function() {release()};
-
-    document.getElementById("backward").ontouchstart = function() {backwardDown()};
-    document.getElementById("backward").ontouchend = function() {release()};
-
-    document.getElementById("left").ontouchstart = function() {leftDown()};
-    document.getElementById("left").ontouchend = function() {release()};
-
-    document.getElementById("right").ontouchstart = function() {rightDown()};
-    document.getElementById("right").ontouchend = function() {release()};
-
-    document.getElementById("center").ontouchstart = function() {centerDown()};
-    document.getElementById("center").ontouchend = function() {release()};
+    var btns = document.getElementsByName("bt")
+    var i;
+    for (i = 0; i < btns.length; i++) {
+      btns[i].ontouchstart = function(e) {btnSend(this.value); e.stopPropagation(); e.preventDefault();};
+      btns[i].onmousedown = function(e) {btnSend(this.value); e.stopPropagation(); e.preventDefault();};
+      btns[i].ontouchend = function() {btnRelease(); e.stopPropagation(); e.preventDefault();}
+      btns[i].onmouseup = function() {btnRelease(); e.stopPropagation(); e.preventDefault();}
+    }
 
     document.onkeydown = function(e) {
         e = e || window.event;
         switch(e.which || e.keyCode) {
         case 38:
-            forwardDown();
+            btnSend("FD");
             console.log("Up key");
             break;
         case 40:
-            backwardDown();
+            btnSend("BK");
             console.log("Down key");
             break;
         case 37:
-            leftDown();
+            btnSend("LT");
             console.log("Left key");
             break;
         case 39:
-            rightDown();
+            btnSend("RT");
             console.log("Right key");
             break;
       }
     }
 
     document.onkeyup = function(e) {
-        release();
+        btnRelease();
         console.log("Key up");
     }
 
 
     var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
-      connection.onopen = function(){
+    connection.onopen = function(){
       connection.send('Connect ' + new Date()); 
     };
     connection.onerror = function(error){
@@ -87,32 +82,12 @@
 
 
 
-    function forwardDown() {
-      console.log('Forward button pressed'); 
-      connection.send('#F');
+    function btnSend(val) {
+      console.log('Button pressed, sending #'+val); 
+      connection.send('#'+val);
     }
 
-    function backwardDown() {
-      console.log('Backward button pressed'); 
-      connection.send('#B');
-    }
-
-    function leftDown() {
-      console.log('Left button pressed'); 
-      connection.send('#L');
-    }
-
-    function rightDown() {
-      console.log('Right button pressed'); 
-      connection.send('#R');
-    }
-
-    function centerDown() {
-      console.log('Center button pressed'); 
-      connection.send('#C');
-    }
-
-    function release() {
+    function btnRelease() {
       console.log('Button released'); 
       connection.send('#0');
     }
