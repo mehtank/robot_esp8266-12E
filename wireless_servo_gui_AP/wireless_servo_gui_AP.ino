@@ -52,6 +52,8 @@ const int SERVO_LEFT = D1;
 const int SERVO_RIGHT = D2;
 Servo servo_left;
 Servo servo_right;
+int servo_left_ctr = 90;
+int servo_right_ctr = 90;
 
 
 // WiFi AP parameters
@@ -115,7 +117,8 @@ void drive(int left, int right) {
 
 void stop() {
   DEBUG("stop");
-  drive(90, 90);
+  drive(servo_left_ctr, servo_right_ctr);
+  LED_OFF;
 }
 
 void forward() {
@@ -189,21 +192,30 @@ void webSocketEvent(uint8_t id, WStype_t type, uint8_t * payload, size_t length)
             DEBUG("  got text: ", (char *)payload);
 
             if (payload[0] == '#') {
-                if(payload[1] == 'F') {
+                if(payload[1] == 'C') 
+                  LED_ON;
+                else if(payload[1] == 'F') 
                   forward();
-                }
-                else if(payload[1] == 'B') {
+                else if(payload[1] == 'B') 
                   backward();
-                }
-                else if(payload[1] == 'L') {
+                else if(payload[1] == 'L') 
                   left();
-                }
-                else if(payload[1] == 'R') {
+                else if(payload[1] == 'R') 
                   right();
+                else if(payload[1] == 'U') {
+                  if(payload[2] == 'L') 
+                    servo_left_ctr -= 1;
+                  else if(payload[2] == 'R') 
+                    servo_right_ctr += 1;
                 }
-                else {
+                else if(payload[1] == 'D') {
+                  if(payload[2] == 'L') 
+                    servo_left_ctr += 1;
+                  else if(payload[2] == 'R') 
+                    servo_right_ctr -= 1;
+                }
+                else 
                   stop();
-                }
             }
 
             break;
