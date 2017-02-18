@@ -187,7 +187,7 @@ void webSocketEvent(uint8_t id, WStype_t type, uint8_t * payload, size_t length)
               DEBUG("    char : ", payload[i]);
 
             if (payload[0] == '~') 
-              drive(payload[1], payload[2]);
+              drive(180-payload[1], payload[2]);
 
         case WStype_TEXT:
             DEBUG("On connection #", id)
