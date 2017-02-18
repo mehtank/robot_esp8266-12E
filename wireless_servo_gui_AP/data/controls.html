@@ -11,7 +11,7 @@
 <body>
   <h1>Yay Robots!</h1>
 
-  <table>
+  <table class=btns>
     <tr>
       <td><button id="leftup"    name="bt" value="UL" class="smbutton">⏫</button></td>
       <td><button id="forward"   name="bt" value="FD" class="button">▲</button></td>
@@ -29,7 +29,14 @@
       <td></td>
     </tr>
   </table>
-  <div id="wsRx" class="log"></div>
+  <table class=wslog> <tr>
+      <td width="50%">
+        <div id="wsRx" class="log"></div>
+      </td>
+      <td width="50%">
+        <div id="wsTx" class="log"></div>
+      </td>
+  </tr></table>
 
   <script>
     var btns = document.getElementsByName("bt")
@@ -70,8 +77,12 @@
 
 
     var wsRx = document.getElementById("wsRx");
-    function wsLog(text) {
+    var wsTx = document.getElementById("wsTx");
+    function rxLog(text) {
       wsRx.innerHTML = text + wsRx.innerHTML;
+    }
+    function txLog(text) {
+      wsTx.innerHTML = text + wsTx.innerHTML;
     }
 
     var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
@@ -79,19 +90,19 @@
       var timeStr = new Date().toLocaleTimeString();
       var text = "(" + timeStr + ") : CONNECTED <br>";
       connection.send('Connect ' + new Date()); 
-      wsLog(text);
+      txLog(text);
     };
     connection.onerror = function(error){
       var timeStr = new Date().toLocaleTimeString();
       var text = "(" + timeStr + ") : EE = " + error + "<br>";
       console.log('WebSocket Error ', error);
-      wsLog(text);
+      txLog(text);
     };
     connection.onmessage = function(e){
       var timeStr = new Date().toLocaleTimeString();
       var text = "(" + timeStr + ") : RX = " + e.data + "<br>";
       console.log('Server: ', e.data);
-      wsLog(text);
+      rxLog(text);
     };
 
 
@@ -99,7 +110,7 @@
     function btnSend(val) {
       var timeStr = new Date().toLocaleTimeString();
       var text = "(" + timeStr + ") : TX = #" + val + "<br>";
-      wsLog(text);
+      txLog(text);
 
       console.log('Button pressed, sending #'+val); 
       connection.send('#'+val);
@@ -108,7 +119,7 @@
     function btnRelease() {
       var timeStr = new Date().toLocaleTimeString();
       var text = "(" + timeStr + ") : TX = #0<br>";
-      wsLog(text);
+      txLog(text);
 
       console.log('Button released'); 
       connection.send('#0');
