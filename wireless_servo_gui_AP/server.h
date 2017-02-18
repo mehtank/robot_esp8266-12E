@@ -15,4 +15,6 @@ void setupMDNS(char* name) ;
 void httpLoop();
 void wsLoop();
 
+void wsSend(int id, char* txt);
+
 #endif

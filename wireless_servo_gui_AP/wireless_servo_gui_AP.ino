@@ -2,7 +2,7 @@
   Wireless Servo Control, with ESP as Access Point
 
   Usage: 
-    Connect phone or laptop to "ESP Whee" wireless network
+    Connect phone or laptop to "ESP_XXXX" wireless network, where XXXX is the ID of the robot
     Go to 192.168.4.1. 
     A webpage with four buttons should appear. Click them to move the robot.
 
@@ -23,20 +23,12 @@
       To install, create "tools" folder in Arduino, download, and unzip. See 
       https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system
 
-
-  Note that one of the motor pins overlaps with LED pin D4, so when the left wheel is going CW, the LED light close the ESP chip will turn on
-  Note that we opted to swap the motor wires on the right motor so that LOW is backwards for both motors
-  
-  We define arbitrarily Left CW = backwards
-  
   Hardware: 
   * NodeMCU Amica DevKit Board (ESP8266 chip)
   * Motorshield for NodeMCU 
-  * 2 servos
+  * 2 continuous rotation servos plugged into motorshield pins D1, D2
   * Paper chassis
 
-  modified Nov 2016
-  Nancy Ouyang
 */
 
 #include <Arduino.h>
@@ -55,10 +47,6 @@
 #include "file.h"
 #include "server.h"
 
-
-const int LED_PIN = D0;
-#define LED_ON digitalWrite(LED_PIN, LOW)
-#define LED_OFF digitalWrite(LED_PIN, HIGH)
 
 const int SERVO_LEFT = D1;
 const int SERVO_RIGHT = D2;
@@ -82,7 +70,6 @@ String html;
 String css;
 
 void setup() {
-    setupDebug();
     setupPins();
 
     sprintf(ap_ssid, "ESP_%08X", ESP.getChipId());
@@ -121,36 +108,34 @@ void loop() {
 // Movement Functions //
 //
 
-int stop() {
-  //digitalWrite(LED_PIN, HIGH);
-  debug("stop");
-  servo_left.write(90);
-  servo_right.write(90);
+void drive(int left, int right) {
+  servo_left.write(left);
+  servo_right.write(right);
 }
 
-int forward() {
-  //digitalWrite(LED_PIN, LOW);
-  debug("forward");
-  servo_left.write(0);
-  servo_right.write(180);
+void stop() {
+  DEBUG("stop");
+  drive(90, 90);
 }
 
-int backward() {
-  debug("backward");
-  servo_left.write(180);
-  servo_right.write(0);
+void forward() {
+  DEBUG("forward");
+  drive(0, 180);
 }
 
-int left() {
-  debug("left");
-  servo_left.write(180);
-  servo_right.write(180);
+void backward() {
+  DEBUG("backward");
+  drive(180, 0);
 }
 
-int right() {
-  debug("right");
-  servo_left.write(0);
-  servo_right.write(0);
+void left() {
+  DEBUG("left");
+  drive(180, 180);
+}
+
+void right() {
+  DEBUG("right");
+  drive(0, 0);
 }
 
 
@@ -160,33 +145,48 @@ int right() {
 //
 
 void setupPins() {
-    // setup LEDs and Motors
-    debug("Setup LED and motor pins");
+    // setup Serial, LEDs and Motors
+    Serial.begin(115200);
+    DEBUG("Started serial.");
+
     pinMode(LED_PIN, OUTPUT);    //Pin D0 is LED
     LED_OFF;                     //Turn off LED
+    DEBUG("Setup LED pin.");
 
     servo_left.attach(SERVO_LEFT);
     servo_right.attach(SERVO_RIGHT);
+    DEBUG("Setup motor pins");
 }
 
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght) {
+void webSocketEvent(uint8_t id, WStype_t type, uint8_t * payload, size_t length) {
 
     switch(type) {
         case WStype_DISCONNECTED:
-            Serial.printf("[%u] Disconnected!\n", num);
+            DEBUG("Web socket disconnected, id = ", id);
             break;
         case WStype_CONNECTED: 
         {
-            // IPAddress ip = webSocket.remoteIP(num);
-            // Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-            debug("Web socket connected");
+            // IPAddress ip = webSocket.remoteIP(id);
+            // Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", id, ip[0], ip[1], ip[2], ip[3], payload);
+            DEBUG("Web socket connected, id = ", id);
 
             // send message to client
-            // webSocket.sendTXT(num, "Connected");
+            wsSend(id, "Connected to ");
+            wsSend(id, ap_ssid);
             break;
         }
+        case WStype_BIN:
+            DEBUG("On connection #", id)
+            DEBUG("  got binary of length ", length);
+            for (int i = 0; i < length; i++)
+              DEBUG("    char : ", payload[i]);
+
+            if (payload[0] == '~') 
+              drive(payload[1], payload[2]);
+
         case WStype_TEXT:
-            Serial.printf("[%u] get text: %s\n", num, payload);
+            DEBUG("On connection #", id)
+            DEBUG("  got text: ", (char *)payload);
 
             if (payload[0] == '#') {
                 if(payload[1] == 'F') {

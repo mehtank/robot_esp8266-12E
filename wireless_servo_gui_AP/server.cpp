@@ -20,30 +20,30 @@ WebSocketsServer wsServer = WebSocketsServer(81);
 //
 
 void setupSTA(char* ssid, char* password) {
-    debug("Connecting to STA");
+    DEBUG("Connecting to STA");
     WiFi.begin(ssid, password);
 
     int tries = 0;
     while (WiFi.status() != WL_CONNECTED) {
         if (tries++ > STA_MAXTRIES) {
-            debug("  giving up.");
+            DEBUG("  giving up.");
             return;
         }
         delay(500);
-        debug("  ... waiting");
+        DEBUG("  ... waiting");
     }
 
     IPAddress myIP = WiFi.localIP();
-    debug("STA IP address: ");
-    debug(myIP.toString());
+    DEBUG("STA IP address: ");
+    DEBUG(myIP.toString());
 }
 
 void setupAP(char* ssid, char* password) {
     WiFi.softAP(ssid, password);
 
     IPAddress myIP = WiFi.softAPIP();
-    debug("AP IP address: ");
-    debug(myIP.toString());
+    DEBUG("AP IP address: ");
+    DEBUG(myIP.toString());
 }
 
 void registerPage(const char* url, const char* type, String &content) {
@@ -65,9 +65,9 @@ void setupMDNS(char* name) {
         // Add services to mDNS
         MDNS.addService("http", "tcp", 80);
         MDNS.addService("ws", "tcp", 81);
-        debug("mDNS responder started");
+        DEBUG("mDNS responder started");
     } else {
-        debug("mDNS failed\n");
+        DEBUG("mDNS failed\n");
     }
 }
 
@@ -77,4 +77,8 @@ void httpLoop() {
 
 void wsLoop() {
 	wsServer.loop();
+}
+
+void wsSend(int id, char* txt) {
+    wsServer.sendTXT(id, txt);
 }

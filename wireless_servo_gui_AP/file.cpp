@@ -6,7 +6,7 @@
 bool isFileSetup = false;
 
 void setupFile() {
-    debug("Prepare file system");
+    DEBUG("Prepare file system");
     SPIFFS.begin();
     isFileSetup = true;
 }
@@ -17,9 +17,9 @@ String loadFile(const char* filename) {
 
     File file = SPIFFS.open(filename, "r");
     if (!file) {
-        debug("File open failed");  
+        DEBUG("File open failed");  
     } else {
-        debug("File open success");
+        DEBUG("File open success");
 
         String text = "";
         while (file.available()) {
