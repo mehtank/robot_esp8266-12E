@@ -67,8 +67,8 @@ Servo servo_right;
 
 
 // WiFi AP parameters
-char* ap_ssid = "ESP Whee2";
-char* ap_password = "my_password";
+char ap_ssid[13];
+char* ap_password = "";
 
 // WiFi STA parameters
 char* sta_ssid = 
@@ -85,8 +85,18 @@ void setup() {
     setupDebug();
     setupPins();
 
+    sprintf(ap_ssid, "ESP_%08X", ESP.getChipId());
+
+    for(uint8_t t = 4; t > 0; t--) {
+        Serial.printf("[SETUP] BOOT WAIT %d...\n", t);
+        Serial.flush();
+        LED_ON;
+        delay(500);
+        LED_OFF;
+        delay(500);
+    }
     LED_ON;
-    setupSTA(sta_ssid, sta_password);
+    //setupSTA(sta_ssid, sta_password);
     setupAP(ap_ssid, ap_password);
     LED_OFF;
 
@@ -98,7 +108,7 @@ void setup() {
 
     setupHTTP();
     setupWS(webSocketEvent);
-    setupMDNS(mDNS_name);
+    //setupMDNS(mDNS_name);
 }
 
 void loop() {
