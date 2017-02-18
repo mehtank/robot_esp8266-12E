@@ -14,7 +14,7 @@
   <table width="100%">
     <tr>
       <td>
-        <input type="range" name="bt" id="ltSlider" orient="vertical" min=0 max=180 value=90/>
+        <input type="range" name="slide" id="ltSlider" orient="vertical" min=0 max=180 value=90/>
       </td>
       <td>
         <table class=btns>
@@ -37,7 +37,7 @@
         </table>
       </td>
       <td>
-        <input type="range" name="bt" id="rtSlider" orient="vertical" min=0 max=180 value=90/>
+        <input type="range" name="slide" id="rtSlider" orient="vertical" min=0 max=180 value=90/>
       </td>
     </tr>
   </table>
@@ -57,18 +57,19 @@
     window.onload = function () {
       var ltSlider = document.getElementById("ltSlider");
       var rtSlider = document.getElementById("rtSlider");
-        
-      var btns = document.getElementsByName("bt");
+
+      var btns = document.getElementsByName("slide");
       for (var i = 0; i < btns.length; i++) {
-        if (btns[i].type == "range") {
           btns[i].oninput = function(e) {sliderSend(); e.stopPropagation(); e.preventDefault();};
           btns[i].onchange = function() {btnRelease(); e.stopPropagation(); e.preventDefault();}
-        } else {
+      }
+
+      var btns = document.getElementsByName("bt");
+      for (var i = 0; i < btns.length; i++) {
           btns[i].ontouchstart = function(e) {btnSend(this.value); e.stopPropagation(); e.preventDefault();};
           btns[i].onmousedown = function(e) {btnSend(this.value); e.stopPropagation(); e.preventDefault();};
           btns[i].ontouchend = function() {btnRelease(); e.stopPropagation(); e.preventDefault();}
           btns[i].onmouseup = function() {btnRelease(); e.stopPropagation(); e.preventDefault();}
-        }
       }
     }
 
