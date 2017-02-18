@@ -19,7 +19,7 @@
   </tr>
   <tr>
     <td><button id="left" class="button">◀</button></td>
-    <td>❤</td>
+    <td><button id="center" class="button">❤</button></td>
     <td><button id="right" class="button">▶</button></td>
   </tr>
   <tr>
@@ -42,6 +42,9 @@
 
     document.getElementById("right").ontouchstart = function() {rightDown()};
     document.getElementById("right").ontouchend = function() {release()};
+
+    document.getElementById("center").ontouchstart = function() {centerDown()};
+    document.getElementById("center").ontouchend = function() {release()};
 
     document.onkeydown = function(e) {
         e = e || window.event;
@@ -103,6 +106,12 @@
       console.log('Right button pressed'); 
       connection.send('#R');
     }
+
+    function centerDown() {
+      console.log('Center button pressed'); 
+      connection.send('#C');
+    }
+
     function release() {
       console.log('Button released'); 
       connection.send('#0');
