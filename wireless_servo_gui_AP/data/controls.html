@@ -5,31 +5,31 @@
   <title>whooo control robots</title>
 
   <link rel="stylesheet" type="text/css" href="style.css">
-  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 
 <body>
   <h1>Yay Robots!</h1>
 
-<table style="width:100%">
-  <tr>
-    <td><button id="leftup"    name="bt" value="UL" class="smbutton">⏫</button></td>
-    <td><button id="forward"   name="bt" value="FD" class="button">▲</button></td>
-    <td><button id="rightup"   name="bt" value="UR" class="smbutton">⏫</button></td>
-  </tr>
-  <tr>
-    <td><button id="left"      name="bt" value="LT" class="button">◀</button></td>
-    <td><button id="center"    name="bt" value="CC" class="smbutton">❤</button></td>
-    <td><button id="right"     name="bt" value="RT" class="button">▶</button></td>
-  </tr>
-  <tr>
-    <td><button id="leftdown"  name="bt" value="DL" class="smbutton">⏬</button></td>
-    <td><button id="backward"  name="bt" value="BK" class="button">▼</button></td>
-    <td><button id="rightdown" name="bt" value="DR" class="smbutton">⏬</button></td>
-    <td></td>
-  </tr>
-</table>
-
+  <table>
+    <tr>
+      <td><button id="leftup"    name="bt" value="UL" class="smbutton">⏫</button></td>
+      <td><button id="forward"   name="bt" value="FD" class="button">▲</button></td>
+      <td><button id="rightup"   name="bt" value="UR" class="smbutton">⏫</button></td>
+    </tr>
+    <tr>
+      <td><button id="left"      name="bt" value="LT" class="button">◀</button></td>
+      <td><button id="center"    name="bt" value="CC" class="smbutton">❤</button></td>
+      <td><button id="right"     name="bt" value="RT" class="button">▶</button></td>
+    </tr>
+    <tr>
+      <td><button id="leftdown"  name="bt" value="DL" class="smbutton">⏬</button></td>
+      <td><button id="backward"  name="bt" value="BK" class="button">▼</button></td>
+      <td><button id="rightdown" name="bt" value="DR" class="smbutton">⏬</button></td>
+      <td></td>
+    </tr>
+  </table>
+  <div id="wsRx" class="log"></div>
 
   <script>
     var btns = document.getElementsByName("bt")
@@ -69,25 +69,47 @@
     }
 
 
+    var wsRx = document.getElementById("wsRx");
+    function wsLog(text) {
+      wsRx.innerHTML = text + wsRx.innerHTML;
+    }
+
     var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);
     connection.onopen = function(){
+      var timeStr = new Date().toLocaleTimeString();
+      var text = "(" + timeStr + ") : CONNECTED <br>";
       connection.send('Connect ' + new Date()); 
+      wsLog(text);
     };
     connection.onerror = function(error){
+      var timeStr = new Date().toLocaleTimeString();
+      var text = "(" + timeStr + ") : EE = " + error + "<br>";
       console.log('WebSocket Error ', error);
+      wsLog(text);
     };
     connection.onmessage = function(e){
+      var timeStr = new Date().toLocaleTimeString();
+      var text = "(" + timeStr + ") : RX = " + e.data + "<br>";
       console.log('Server: ', e.data);
+      wsLog(text);
     };
 
 
 
     function btnSend(val) {
+      var timeStr = new Date().toLocaleTimeString();
+      var text = "(" + timeStr + ") : TX = #" + val + "<br>";
+      wsLog(text);
+
       console.log('Button pressed, sending #'+val); 
       connection.send('#'+val);
     }
 
     function btnRelease() {
+      var timeStr = new Date().toLocaleTimeString();
+      var text = "(" + timeStr + ") : TX = #0<br>";
+      wsLog(text);
+
       console.log('Button released'); 
       connection.send('#0');
     }

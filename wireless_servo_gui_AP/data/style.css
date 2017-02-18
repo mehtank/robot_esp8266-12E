@@ -1,7 +1,12 @@
-body {
-  width: 200px;
+h1 {
   text-align: center;
 }
+
+table {
+    width: 200px;
+    text-align: center;
+    margin: 0 auto;
+  }
 
 button {
   background-color:#ffaa42;
@@ -14,7 +19,7 @@ button {
   font-family:Arial;
   font-size:20px;
   font-weight:bold;
-  padding:40px 40px;
+  padding:20px 20px;
   text-decoration:none;
 
   -webkit-touch-callout: none; /* iOS Safari */
@@ -26,7 +31,7 @@ button {
 }
 
 .smbutton {
-  padding: 10px 10px;
+  padding: 5px 5px;
 }
 
 button:hover {

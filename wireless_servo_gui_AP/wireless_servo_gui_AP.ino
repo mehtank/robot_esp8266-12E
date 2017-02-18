@@ -192,8 +192,10 @@ void webSocketEvent(uint8_t id, WStype_t type, uint8_t * payload, size_t length)
             DEBUG("  got text: ", (char *)payload);
 
             if (payload[0] == '#') {
-                if(payload[1] == 'C') 
+                if(payload[1] == 'C') {
                   LED_ON;
+                  wsSend(id, "Hello world!");
+                }
                 else if(payload[1] == 'F') 
                   forward();
                 else if(payload[1] == 'B') 
