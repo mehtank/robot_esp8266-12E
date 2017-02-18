@@ -98,6 +98,8 @@ void setup() {
     setupHTTP();
     setupWS(webSocketEvent);
     //setupMDNS(mDNS_name);
+
+    stop();
 }
 
 void loop() {
